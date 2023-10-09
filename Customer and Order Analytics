@@ -1,4 +1,4 @@
-          #In this SQL, I'm querying a database with multiple tables containing about 13000 inputs in it to quantify statistics about customer and order data. 
+          #In this SQL, I'm querying a database with multiple tables containing about 13000 ROWS in it to quantify statistics about customer and order data. 
 
 
 #How many orders where placed in January?
@@ -50,7 +50,7 @@ WHERE location = '548 Lincoln St, Seattle, WA 98101'
 GROUP BY Product;
 
 
-How many customers ordered more than 2 products at a time in February, and what was the average amount spent for those customers? 
+#How many customers ordered more than 2 products at a time in February, and what was the average amount spent for those customers? 
 
 SELECT
 count(distinct cust.acctnum) as numOF_custs, 
@@ -63,6 +63,7 @@ AND length(orderid) = 6
 AND orderid <> 'Order ID';
 
 #How many orders where place on '02/18/19%'?
+
 SELECT sum(quantity)
 FROM BIT_DB.FebSales 
 WHERE orderdate like '02/18/19%';
@@ -80,5 +81,56 @@ from BIT_DB.FebSales
 WHERE location LIKE '%Los Angeles%'
 group by product
 Order by "Total_sold_in_LA_FEB" asc;
+
+#Which locations in New York received at least 3 orders in January, and how many orders did they each receive?
+
+Select distinct location, COUNT(orderID)
+FROM BIT_DB.JanSales
+Where location LIKE '%NY%'
+AND length(orderid) = 6 
+AND orderid <> 'Order ID'
+GROUP BY location
+HAVING COUNT(orderID) > 2 ;
+
+#How many of each type of headphone were sold in February?
+
+Select SUM(Quantity) as quantity, Product
+FROM BIT_DB.FebSales
+WHERE Product LIKE '%HeadPhones%'
+Group by Product
+Order by "quantity" asc;
+
+#How much on average was spent per account in February?
+
+SELECT ROUND(AVG (Quantity*Price),2) AS Avg_spentPerACCT
+FROM BIT_DB.FebSales AS Feb
+LEFT JOIN BIT_DB.customers AS cust 
+ON FEB.orderID = cust.order_id
+WHERE length(orderid) = 6 
+AND orderid <> 'Order ID';
+
+#What was the average quantity of products purchased per account in February? 
+
+SELECT ROUND(AVG(Quantity),0) AS products_soldAVG
+FROM BIT_DB.FebSales as Feb
+LEFT JOIN BIT_DB.customers AS cust
+ON Feb.orderID = cust.order_id
+WHERE length (orderID) = 6
+AND orderID <> 'Order ID';
+
+#Which product made the most revenue in January, and how much revenue did it bring total?
+
+SELECT ROUND(SUM(Quantity*price),2) as Total_revenue, Product
+FROM BIT_DB.JanSales
+WHERE length (orderID) = 6
+AND orderID <> 'Order ID'
+GROUP BY Product
+Order by "Total_revenue" asc
+Limit 1;
+
+
+
+
+
 
 
