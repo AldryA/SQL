@@ -1,0 +1,97 @@
+# For this project, I downloaded Spotify data from Kaggle. This dataset contains the Top 50 songs in 2021.
+# Then I created a table to insert Spotify data into.
+# Finally, I performed analytics on the data using SQL. 
+
+
+CREATE TABLE BIT_DB.Spotifydata (
+id integer PRIMARY KEY,
+artist_name varchar NOT NULL,
+track_name varchar NOT NULL,
+track_id varchar NOT NULL,
+popularity integer NOT NULL,
+danceability decimal(4,3) NOT NULL,
+energy decimal(4,3) NOT NULL,
+song_key integer NOT NULL,
+loudness decimal(5,3) NOT NULL,
+song_mode integer NOT NULL,
+speechiness decimal(5,4) NOT NULL,
+acousticness decimal(6,5) NOT NULL,
+instrumentalness decimal(8,7) NOT NULL,
+liveness decimal(5,4) NOT NULL,
+valence decimal(4,3) NOT NULL,
+tempo decimal(6,3) NOT NULL,
+duration_ms integer NOT NULL,
+time_signature integer NOT NULL )
+
+#Then I inserted the Spotify Data .csv into the table.
+
+#Next, I came up with questions and explored the data using the following SQL. 
+///////
+
+# What was the average energy of the songs released by Olivia Rodrigo?
+
+SELECT AVG(energy)
+FROM Spotifydata
+WHERE artist_name = "Olivia Rodrigo";
+
+# Which artist released the longest song in minutes and whats the name of the song?
+
+SELECT ROUND(MAX(duration_ms/60000.0),2) as LongestSong_inMINS, track_name, artist_name
+FROM Spotifydata
+;
+
+
+# Who are the top 10 artists with the lowest danceability scores?
+
+SELECT AVG(danceability), artist_name
+FROM Spotifydata
+GROUP BY artist_name
+ORDER BY danceability asc
+LIMIT 10; 
+
+# What are the top 10 most pupular songs and whats their energy score?
+
+Select track_name, MAX(popularity), energy
+FROM Spotifydata
+Group by track_name
+order by popularity desc
+LIMIT 10
+;
+
+# What is the most common key used among the songs?
+ 
+SELECT song_key, COUNT(*) as Key_count
+FROM Spotifydata
+GROUP BY song_key
+order by "Key_count" desc
+limit 1;
+
+# What is the average duration in minutes of the songs?
+
+SELECT ROUND(AVG(duration_ms/60000.0),2) as AVG_SONGdurationInMINS
+FROM Spotifydata
+;
+
+# How many songs in the dataset are in a major key (Mode = 1) and how many are in a minor key (Mode = 0)?
+
+SELECT song_mode, COUNT(*) as Major_MInor_KEYsongs
+FROM Spotifydata
+GROUP BY song_mode
+;
+
+# What is the songs with the fastest tempo?
+
+SELECT track_name, MAX(tempo)
+FROM Spotifydata
+
+# I have categorized all the songs in the dataset based on their valence (mood). The higher the value, the more positive the mood is.
+
+SELECT track_name, artist_name,
+CASE
+WHEN valence >= 0.7 THEN "Joyful"
+WHEN valence >= 0.5 THEN  "Neutral"
+WHEN valence >= 0.3 THEN "Sad"
+ELSE "Depressing"
+END AS Song_mood
+FROM Spotifydata
+GROUP BY id
