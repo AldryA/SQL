@@ -1,0 +1,111 @@
+ #In this SQL, I'm querying a database with containing information about patients of a big hospital.
+
+Patients 
+patient_id	INT
+first_name	TEXT
+last_name	TEXT
+gender	CHAR(1)
+birth_date	DATE
+city	TEXT
+province_id	CHAR(2)
+allergies	TEXT
+height	INT
+weight	INT
+
+Admissions
+	patient_id	INT
+admission_date	DATE
+discharge_date	DATE
+diagnosis	TEXT
+attending_doctor_id	INT
+
+Doctors
+doctor_id	INT
+first_name	TEXT
+last_name	TEXT
+specialty	TEXT
+
+
+
+
+#Show unique birth years from patients and order them ascending.
+
+SELECT distinct year(birth_date) as Birth_year
+FROM patients
+order by birth_date asc
+  
+#Show unique first names from the patients table which only occurs once in the list.
+
+Select first_name as occurencies
+from patients
+group by first_name
+having count(first_name) = 1;
+
+#Show patient_id and first_name from patients where their first_name start and ends with 's' and is at least 6 characters long.
+
+Select patient_id, first_name
+from patients
+where first_name like 's%s'
+and len(first_name) >= 6;
+
+#Show patient_id, first_name, last_name from patients whos diagnosis is 'Dementia'
+
+ Select p.patient_id, first_name, last_name
+    from patients as p
+    join admissions as ad
+    on p.patient_id = ad.patient_id
+    where ad.diagnosis = 'Dementia';
+
+#Display every patient's first_name. Order the list by the length of each name and then by alphbetically
+
+   Select first_name
+    from patients
+    order by len(first_name), first_name asc;
+
+#Show the total amount of male patients and the total amount of female patients in the patients table.
+
+  Select 
+    (Select count(*) from patients where gender = 'M' ) as male_count,
+    (Select count(*) from patients where gender = 'F' ) as  female_count;
+
+#Show first and last name, allergies from patients which have allergies to either 'Penicillin' or 'Morphine'. Show results ordered ascending by allergies then by first_name then by last_name.
+
+  Select first_name, last_name, allergies
+    from patients
+    where allergies in ('Penicillin', 'Morphine')
+    order by allergies asc, first_name, last_name;
+
+#Show patient_id, diagnosis from admissions. Find patients admitted multiple times for the same diagnosis.
+
+Select patient_id, diagnosis
+    from admissions
+    group by patient_id,
+    diagnosis
+    having count(*) > 1;
+
+#Show the city and the total number of patients in the city. Order from most to least patients and then by city name ascending.
+
+  Select city, count(*) as num_ofpatients
+    from patients
+    group by city
+    order by num_ofpatients desc, city asc;
+
+#Show first name, last name and role of every person that is either patient or doctor. The roles are either "Patient" or "Doctor"
+
+ Select first_name, last_name, 'Patient' as role 
+    from patients 
+    UNION all 
+    Select first_name, last_name, 'Doctor' as role 
+    from doctors
+
+#Show all allergies ordered by popularity. Remove NULL values from query.
+
+Select allergies, COUNT(*) AS total_diagnosis
+    from patients
+       where allergies IS NOT NULL
+        group by allergies
+        order by total_diagnosis desc
+
+
+
+
