@@ -95,3 +95,15 @@ ELSE "Depressing"
 END AS Song_mood
 FROM Spotifydata
 GROUP BY id
+
+#Calculate the average popularity for the artists in the Spotify data table. Then, for every artist with an average popularity of 90 or above, show their name, their average popularity, and label them as a “Top Star”.
+
+With temptable AS (
+Select avg(s.popularity) as avg_popularity, s.artist_name
+from Spotifydata as s
+Group by s.artist_name )
+
+Select  artist_name, avg_popularity, 'Top Star' as tag
+from temptable 
+where avg_popularity >= 90
+Order by avg_popularity desc
