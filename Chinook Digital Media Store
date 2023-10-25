@@ -1,0 +1,125 @@
+# This dataset called Chinook represents a digital media store and comprises a complex web of eleven interrelated tables, including those for artists, albums, media types, tracks, invoices, playlists, genres, employees, and customers.
+# I'll be working on this dataset to conduct a detailed analysis aiming at unraveling key insights.
+
+
+# Total amount of invoices per customer for the year 2009.
+
+Select c.FirstName, c.LastName, c.Phone, c.Email, i.BillingCountry,  i.InvoiceDate, count(iv.Quantity) as total_invoices
+from chinook.customers as c
+join chinook.invoices as i
+on c.CustomerId = i.CustomerId
+join chinook.invoice_items as iv 
+on i.InvoiceId = iv.InvoiceId
+where i.InvoiceDate like '%2009%'
+group by c.CustomerId
+having count(iv.Quantity) > 1
+order by count(iv.quantity) desc, c.FirstName asc;
+
+# Filtered data to provide a list of songs, including the artist's name, album title, genre, and audio type, with a specific focus on albums in the 'Rock,' 'Metal,' and 'Heavy Metal' genres. 
+
+Select a.Name, al.Title, g.name as genre, m.name as audio_type
+From chinook.artists as a
+join chinook.albums as al
+on a.ArtistId = al.ArtistId
+join chinook.tracks as t
+on al.AlbumId = t.AlbumId
+join chinook.genres as g
+on t.GenreId = g.GenreId
+join chinook.media_types as m
+on m.MediaTypeId = t.MediaTypeId
+where g.Name IN ('Rock', 'Metal', 'Heavy Metal')
+group by al.Title
+order by genre asc, a.name asc;
+
+
+# Top 10 longest tracks in the database.
+
+Select Round((Milliseconds / 60000),2) as minutes, Name 
+from chinook.tracks
+order by minutes desc
+limit 10;
+
+
+# Filtered the data to display all customers from the USA, along with their respective states.
+
+
+Select FirstName, LastName, Phone, Email, state
+ from chinook.customers
+where Country = 'USA'
+Group by CustomerId
+Order by state asc;
+
+# Filtered data to display all customers outside of the USA.
+
+Select FirstName, LastName, Phone, Email, Country
+ from chinook.customers
+where Country <> 'USA'
+Group by CustomerId
+Order by Country asc;
+
+# The longest and shortest tracks in the database.
+
+Select name, milliseconds
+from chinook.tracks
+where Milliseconds = (Select Max(Milliseconds) as label from chinook.tracks) 
+or Milliseconds =  (Select Min(Milliseconds) from chinook.tracks);
+
+# The total sales for each customer and which employee is responsible for supporting them.
+
+
+Select  c.CustomerId,  c.Email, c.Phone, c.FirstName, c.LastName, c.Country, em.EmployeeId, em.FirstName, em.LastName, Sum( i.Total) as  Total_sales
+from chinook.employees as em
+join chinook.customers as c
+on em.EmployeeId = c.SupportRepId
+join chinook.invoices as i
+on c.CustomerId = i.CustomerId
+Group by c.CustomerId
+order by em.EmployeeId;
+
+# The total amount of dollars in sales made by each Sales Represantitive for the year 2013. 
+
+
+Select em.EmployeeId, em.FirstName, em.LastName,  Round(sum(i.total),2) as Total_sales
+From chinook.Employees as em
+join chinook.customers as c
+on em.EmployeeId = c.SupportRepId
+join chinook.invoices as i
+on c.CustomerId = i.CustomerId
+where i.InvoiceDate like '%2013%'
+Group by em.EmployeeId
+order by Total_sales desc;
+
+
+# The total count of invoices and the total amount generated in sales for the year 2013.
+
+Select count(InvoiceId), Round(Sum(Total),2)
+From chinook.invoices
+where InvoiceDate like '%2013%'; 
+
+# A query that shows all invoices per customer from Brazil and Canada, including the invoice id, invoice date, the customer's first and last name, phone and email. It's also ordered by country alphabetically so that it shows all customers from Brazil and then from Canada.
+
+
+Select i.InvoiceId, i.InvoiceDate, c.CustomerId, c.FirstName, c.LastName, i.BillingCountry, c.Phone, c.email
+From chinook.customers as c
+join chinook.invoices as i
+on c.CustomerId = i.CustomerId
+where i.BillingCountry IN ('Brazil', 'Canada')
+Group by i.InvoiceId
+Order by i.BillingCountry asc, email asc;
+
+
+# Calculated the average purchase amount per customer from all countries, also including the customer's first and last name, their customer id and ordered by billing country alphabetically.
+
+
+Select i.BillingCountry, c.FirstName, c.LastName, Round(AVG(i.Total),2) avg_purchase_amount
+From chinook.invoices as i
+join chinook.customers as c
+on i.CustomerId = c.CustomerId
+Group by i.CustomerId
+Order by i.BillingCountry asc;
+
+
+
+
+
+
